@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Bot, Copy, Check, Terminal, Shield, Key, Sparkles, BookOpen, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -27,6 +28,7 @@ export const McpModal: React.FC<McpModalProps> = ({
   const [pingResult, setPingResult] = useState<string | null>(null);
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
   const mcpServerUrl = `${window.location.origin}/mcp`;
   const todayUri = boardId
@@ -159,18 +161,20 @@ export const McpModal: React.FC<McpModalProps> = ({
     },
   ];
 
-  return (
+  return createPortal(
     <div
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.65)',
-        backdropFilter: 'blur(6px)',
-        zIndex: 9999,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        zIndex: 99999,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1rem',
+        padding: '1.5rem 1rem',
+        overflowY: 'auto',
         animation: 'fadeIn 0.15s ease-out',
       }}
       onClick={onClose}
@@ -182,7 +186,8 @@ export const McpModal: React.FC<McpModalProps> = ({
           borderRadius: 'var(--radius-lg, 16px)',
           width: '100%',
           maxWidth: '640px',
-          maxHeight: '90vh',
+          maxHeight: 'min(90vh, 760px)',
+          margin: 'auto',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: 'var(--shadow-lg, 0 20px 25px -5px rgba(0, 0, 0, 0.5))',
@@ -346,7 +351,17 @@ export const McpModal: React.FC<McpModalProps> = ({
         </div>
 
         {/* Body Content */}
-        <div style={{ padding: '1.25rem 1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div
+          style={{
+            padding: '1.25rem 1.5rem',
+            overflowY: 'auto',
+            flex: 1,
+            overscrollBehavior: 'contain',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem',
+          }}
+        >
           {activeTab === 'config' && (
             <>
               {/* Context Banner */}
@@ -754,6 +769,7 @@ export const McpModal: React.FC<McpModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -59,7 +59,8 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header
+    <>
+      <header
       style={{
         position: 'sticky',
         top: 0,
@@ -342,14 +343,15 @@ export const Header: React.FC<HeaderProps> = ({
           <GithubIcon size={16} />
         </a>
       </div>
-
-      {/* Modal MCP */}
-      <McpModal
-        isOpen={showMcpModal}
-        onClose={() => setShowMcpModal(false)}
-        boardId={board?.id}
-        isFacilitator={isFacilitator}
-      />
     </header>
-  );
+
+    {/* Modal MCP */}
+    <McpModal
+      isOpen={showMcpModal}
+      onClose={() => setShowMcpModal(false)}
+      boardId={board?.id}
+      isFacilitator={isFacilitator}
+    />
+  </>
+);
 };
