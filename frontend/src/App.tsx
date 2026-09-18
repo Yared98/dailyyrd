@@ -101,9 +101,13 @@ export function App() {
         setMyCheckinId(data.user_checkin_id);
       }
       setSelectedDate(data.date);
-      setOnlineCount(data.online_count || 1);
-
-      addRecentBoard({ id: data.board.id, title: data.board.title });
+      const facToken = getFacilitatorToken(data.board.id);
+      addRecentBoard({
+        id: data.board.id,
+        title: data.board.title,
+        role: facToken ? 'facilitator' : 'member',
+        facilitatorToken: facToken,
+      });
     } catch (err: any) {
       setErrorMsg(err.message || 'Erro ao carregar dados');
     }
@@ -253,6 +257,12 @@ export function App() {
 
     const created = await res.json();
     saveFacilitatorToken(created.id, created.facilitator_token);
+    addRecentBoard({
+      id: created.id,
+      title: data.title,
+      role: 'facilitator',
+      facilitatorToken: created.facilitator_token,
+    });
 
     // Navigate to board URL
     window.history.pushState({}, '', `/board/${created.id}`);

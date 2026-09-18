@@ -40,26 +40,48 @@ export interface RecentBoard {
   id: string;
   title: string;
   visitedAt: number;
+  role?: 'facilitator' | 'member';
+  facilitatorToken?: string | null;
 }
 
 export function getRecentBoards(): RecentBoard[] {
   try {
     const raw = localStorage.getItem('dailyyrd_recent_boards');
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const list: RecentBoard[] = JSON.parse(raw);
+    if (!Array.isArray(list)) return [];
+
+    return list.map((b) => {
+      const facToken = b.facilitatorToken || getFacilitatorToken(b.id);
+      return {
+        ...b,
+        facilitatorToken: facToken,
+        role: b.role || (facToken ? 'facilitator' : 'member'),
+      };
+    });
   } catch {
     return [];
   }
 }
 
-export function addRecentBoard(board: { id: string; title: string }): void {
+export function addRecentBoard(board: {
+  id: string;
+  title: string;
+  role?: 'facilitator' | 'member';
+  facilitatorToken?: string | null;
+}): void {
   try {
+    const facToken = board.facilitatorToken || getFacilitatorToken(board.id);
+    const role = board.role || (facToken ? 'facilitator' : 'member');
     const list = getRecentBoards().filter((b) => b.id !== board.id);
     list.unshift({
       id: board.id,
       title: board.title,
       visitedAt: Date.now(),
+      role,
+      facilitatorToken: facToken,
     });
-    localStorage.setItem('dailyyrd_recent_boards', JSON.stringify(list.slice(0, 10)));
+    localStorage.setItem('dailyyrd_recent_boards', JSON.stringify(list.slice(0, 15)));
   } catch {}
 }
 
