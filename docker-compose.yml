@@ -1,0 +1,22 @@
+services:
+  dailyyrd:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dailyyrd-app
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - DATABASE_URL=/app/data/daily.db
+      - STATIC_DIR=/app/dist
+      - RUST_LOG=backend=info,tower_http=info
+      - UMAMI_SCRIPT_URL=${UMAMI_SCRIPT_URL:-}
+      - UMAMI_WEBSITE_ID=${UMAMI_WEBSITE_ID:-}
+    volumes:
+      - daily-data:/app/data
+
+volumes:
+  daily-data:
+    driver: local
