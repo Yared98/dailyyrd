@@ -15,9 +15,11 @@ import {
   Globe,
   Shield,
   AlertTriangle,
+  Bot,
 } from 'lucide-react';
 import { getRecentBoards, removeRecentBoard, type RecentBoard } from '../utils/session';
 import { EcosystemSwitcher } from './EcosystemSwitcher';
+import { McpModal } from './McpModal';
 import { GithubIcon, Footer } from './Footer';
 
 interface HomeViewProps {
@@ -50,6 +52,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [recentBoards, setRecentBoards] = useState<RecentBoard[]>(() => getRecentBoards());
   const [boardToDelete, setBoardToDelete] = useState<RecentBoard | null>(null);
   const [copiedBoardId, setCopiedBoardId] = useState<string | null>(null);
+  const [showMcpModal, setShowMcpModal] = useState(false);
 
   const handleJoinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +137,30 @@ export const HomeView: React.FC<HomeViewProps> = ({
         }}
       >
         <EcosystemSwitcher currentApp="daily" />
+
+        {/* Botão MCP Padronizado */}
+        <button
+          onClick={() => setShowMcpModal(true)}
+          className="btn-secondary"
+          style={{
+            padding: '0.35rem 0.65rem',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            background: 'var(--color-primary-subtle, rgba(99, 102, 241, 0.15))',
+            border: '1px solid var(--border-primary, rgba(99, 102, 241, 0.35))',
+            color: 'var(--color-primary)',
+            cursor: 'pointer',
+            transition: 'all var(--transition-fast, 0.15s ease)',
+          }}
+          title={t('mcp.button_title', 'Configurar Servidor MCP (IA)')}
+        >
+          <Bot size={13} />
+          <span>MCP</span>
+        </button>
 
         {/* Alternador de Idioma */}
         <button
@@ -882,6 +909,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* Footer no rodapé da página */}
       <Footer style={{ borderTop: 'none', marginTop: '2.5rem', width: '100%', maxWidth: '480px' }} />
+
+      {/* Modal MCP */}
+      <McpModal
+        isOpen={showMcpModal}
+        onClose={() => setShowMcpModal(false)}
+      />
     </div>
   );
 };

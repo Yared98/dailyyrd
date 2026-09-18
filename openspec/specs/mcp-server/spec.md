@@ -23,3 +23,8 @@ Ele permite que agentes autônomos e copilotos de IA interajam diretamente com o
 - **WHEN** qualquer ferramenta MCP executa uma mutação:
   - **THEN** o servidor persiste a alteração no SQLite.
   - **AND** despacha a mensagem correspondente no Event Broker (`broadcast`), atualizando instantaneamente os clientes conectados via WebSocket.
+
+## 5. Interface de Descoberta & Setup (UI)
+- **REQ-MCP-UI-001**: A aplicação DEVE expor um botão padronizado com ícone `Bot` e etiqueta "MCP" na barra superior da página inicial (`HomeView`) e na navegação de sessão ativa (`Header`).
+- **REQ-MCP-UI-002**: Ao clicar no botão, o modal `McpModal` DEVE exibir a URL do endpoint (`/mcp`), os recursos da sala (`daily://board/{id}/today` e `/blockers`), snippet JSON pronto para Claude Desktop e Cursor, catálogo de ferramentas e teste de ping síncrono.
+

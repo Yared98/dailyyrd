@@ -13,8 +13,10 @@ import {
   PlusCircle,
   ChevronLeft,
   ChevronRight,
+  Bot,
 } from 'lucide-react';
 import { EcosystemSwitcher } from './EcosystemSwitcher';
+import { McpModal } from './McpModal';
 import { GithubIcon } from './Footer';
 import type { DailyBoard } from '../types';
 
@@ -43,6 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const [copied, setCopied] = React.useState(false);
+  const [showMcpModal, setShowMcpModal] = React.useState(false);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -270,6 +273,28 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
+        {/* Botão MCP Padronizado */}
+        <button
+          onClick={() => setShowMcpModal(true)}
+          className="btn-secondary"
+          style={{
+            padding: '0.45rem 0.75rem',
+            fontSize: '0.825rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            background: 'var(--color-primary-subtle, rgba(99, 102, 241, 0.15))',
+            border: '1px solid var(--border-primary, rgba(99, 102, 241, 0.35))',
+            color: 'var(--color-primary)',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+          title={t('mcp.button_title', 'Configurar Servidor MCP (IA)')}
+        >
+          <Bot size={14} />
+          <span>MCP</span>
+        </button>
+
         {/* Create board button */}
         <button
           onClick={onOpenCreateBoard}
@@ -317,6 +342,14 @@ export const Header: React.FC<HeaderProps> = ({
           <GithubIcon size={16} />
         </a>
       </div>
+
+      {/* Modal MCP */}
+      <McpModal
+        isOpen={showMcpModal}
+        onClose={() => setShowMcpModal(false)}
+        boardId={board?.id}
+        isFacilitator={isFacilitator}
+      />
     </header>
   );
 };
