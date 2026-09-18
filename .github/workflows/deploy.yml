@@ -1,0 +1,22 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy DailyYrd Container
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rebuild and Restart Docker Container
+        run: |
+          cd /opt/dailyyrd
+          git pull origin main
+          docker compose build
+          docker compose up -d
