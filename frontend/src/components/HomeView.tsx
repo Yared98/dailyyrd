@@ -318,15 +318,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {/* Features / Highlights */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                <Clock size={18} color="var(--color-went-well, #10b981)" style={{ flexShrink: 0 }} />
+                <Clock size={16} color="var(--color-went-well, #10b981)" style={{ flexShrink: 0 }} />
                 <span><strong>{t('home.pillar1Title')}</strong> {t('home.pillar1Desc')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                <AlertOctagon size={18} color="var(--color-blocker, #f43f5e)" style={{ flexShrink: 0 }} />
+                <AlertOctagon size={16} color="var(--color-blocker, #f43f5e)" style={{ flexShrink: 0 }} />
                 <span><strong>{t('home.pillar2Title')}</strong> {t('home.pillar2Desc')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                <Play size={18} color="var(--color-action, #6366f1)" style={{ flexShrink: 0 }} />
+                <Play size={16} color="var(--color-action, #6366f1)" style={{ flexShrink: 0 }} />
                 <span><strong>{t('home.pillar3Title')}</strong> {t('home.pillar3Desc')}</span>
               </div>
             </div>
