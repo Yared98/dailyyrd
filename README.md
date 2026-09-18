@@ -13,7 +13,7 @@
 [![Design System](https://img.shields.io/badge/Design_System-Agile_Cadence-6366f1.svg)](https://github.com/Yared98)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[Funcionalidades](#-funcionalidades) • [Arquitetura](#-arquitetura) • [Como Executar](#-como-executar) • [API & WebSockets](#-api--websockets) • [Design System](#-design-system)
+**[🚀 Teste a Demonstração Online](https://daily.yared.com.br)** • [Funcionalidades](#-funcionalidades) • [Arquitetura](#-arquitetura) • [Como Executar](#-como-executar) • [API & WebSockets](#-api--websockets) • [Toolkit](#-yrd-agile-toolkit)
 
 </div>
 
@@ -147,6 +147,19 @@ O projeto utiliza a identidade visual padronizada do portfólio **Yrd**, gerada 
 
 ---
 
+## 🧰 Yrd Agile Toolkit
+
+O **DailyYrd** faz parte do ecossistema de cerimônias ágeis corporativas sem custo de licenciamento:
+
+| Ferramenta | Propósito | Link de Produção |
+| :--- | :--- | :--- |
+| **RetroYrd** | Retrospectivas Ágeis com Segurança Psicológica, Modo Cego e Servidor MCP | [retro.yared.com.br](https://retro.yared.com.br) |
+| **DailyYrd** | Standups Diárias com Roleta de Fala, Spotlight de Bloqueios e Exportação Slack | [daily.yared.com.br](https://daily.yared.com.br) |
+| **PlanningYrd** | Planning Poker em Tempo Real, Métricas de Consenso e Backlog de Histórias | [planning.yared.com.br](https://planning.yared.com.br) |
+
+---
+
 ## 📄 Licença
 
 Distribuído sob a licença MIT. Consulte `LICENSE` para mais detalhes.
+Desenvolvido por **[Yared](https://yared.com.br)**.
