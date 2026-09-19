@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { EcosystemSwitcher } from './EcosystemSwitcher';
 import { McpModal } from './McpModal';
-import { GithubIcon } from './Footer';
 import { copyToClipboard } from '../utils/clipboard';
 import type { DailyBoard } from '../types';
 
@@ -251,19 +250,6 @@ export const Header: React.FC<HeaderProps> = ({
         >
           {theme === 'dark' ? <Sun size={14} color="#fbbf24" /> : <Moon size={14} color="var(--color-primary)" />}
         </button>
-
-        {/* GitHub link */}
-        <a
-          href="https://github.com/Yared98/dailyyrd"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-secondary"
-          style={{ padding: '0.35rem 0.5rem', borderRadius: 'var(--radius-md)', display: 'inline-flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}
-          title={t('footer.github_title', 'Ver código-fonte do DailyYrd no GitHub')}
-          aria-label="GitHub"
-        >
-          <GithubIcon size={14} />
-        </a>
       </div>
     </header>
 
