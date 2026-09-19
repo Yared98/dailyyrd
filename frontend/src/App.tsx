@@ -195,6 +195,7 @@ export function App() {
     startTimer,
     pauseTimer,
     resetTimer,
+    isConnected,
   } = useDailySocket({
     boardId: currentBoardId || '',
     sessionHash,
@@ -308,6 +309,7 @@ export function App() {
         availableDates={boardSnapshot?.available_dates || [selectedDate]}
         onSelectDate={setSelectedDate}
         onlineCount={onlineCount}
+        isConnected={isConnected}
         isFacilitator={boardSnapshot?.is_facilitator || !!facilitatorToken}
         theme={theme}
         userName={userName}

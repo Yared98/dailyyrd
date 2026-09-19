@@ -8,7 +8,7 @@ import {
   Globe,
   Moon,
   Sun,
-  Radio,
+  Users,
   PlusCircle,
   ChevronLeft,
   ChevronRight,
@@ -25,6 +25,7 @@ interface HeaderProps {
   availableDates: string[];
   onSelectDate: (date: string) => void;
   onlineCount: number;
+  isConnected?: boolean;
   isFacilitator: boolean;
   theme: 'dark' | 'light';
   userName?: string;
@@ -39,6 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
   availableDates: _availableDates,
   onSelectDate,
   onlineCount,
+  isConnected = true,
   isFacilitator,
   theme,
   userName,
@@ -158,6 +160,69 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
+        {/* Presença Online e Status de Conexão */}
+        {board && (
+          isConnected ? (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.28rem 0.65rem',
+                backgroundColor: 'var(--color-success-bg, rgba(16, 185, 129, 0.12))',
+                border: '1px solid var(--color-success-border, rgba(16, 185, 129, 0.25))',
+                borderRadius: 'var(--radius-full, 9999px)',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: 'var(--color-success, #10b981)',
+              }}
+              title={`${onlineCount} ${onlineCount === 1 ? t('app.onlineCount') : t('app.onlineCountPlural')}`}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--color-success, #10b981)',
+                  display: 'inline-block',
+                }}
+                className="animate-pulse"
+              />
+              <Users size={12} />
+              <span>{onlineCount} {t('app.onlineCount', 'online')}</span>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.28rem 0.65rem',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                border: '1px solid rgba(245, 158, 11, 0.25)',
+                borderRadius: 'var(--radius-full, 9999px)',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: '#f59e0b',
+              }}
+              title={t('app.reconnecting', 'Reconectando...')}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f59e0b',
+                  display: 'inline-block',
+                }}
+                className="animate-pulse"
+              />
+              <Users size={12} />
+              <span>{t('app.reconnecting', 'Reconectando...')}</span>
+            </div>
+          )
+        )}
+
         {/* Botão MCP Padronizado */}
         <button
           onClick={() => setShowMcpModal(true)}
@@ -257,26 +322,8 @@ export const Header: React.FC<HeaderProps> = ({
     {board && (
       <div className="session-sub-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              padding: '0.2rem 0.55rem',
-              backgroundColor: 'var(--color-success-bg)',
-              border: '1px solid var(--color-success-border)',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: 'var(--color-success)',
-            }}
-            title={`${onlineCount} ${onlineCount === 1 ? t('app.onlineCount') : t('app.onlineCountPlural')}`}
-          >
-            <Radio size={11} className="animate-pulse" />
-            <span>{onlineCount} {onlineCount === 1 ? t('app.onlineCount') : t('app.onlineCountPlural')}</span>
-          </div>
           {board.description && (
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '200px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '250px' }}>
               {board.description}
             </span>
           )}
