@@ -12,6 +12,7 @@ services:
       - DATABASE_URL=/app/data/daily.db
       - STATIC_DIR=/app/dist
       - RUST_LOG=backend=info,tower_http=info
+      - BOARD_RETENTION_DAYS=60
       - UMAMI_SCRIPT_URL=${UMAMI_SCRIPT_URL:-}
       - UMAMI_WEBSITE_ID=${UMAMI_WEBSITE_ID:-}
     volumes:

@@ -41,6 +41,35 @@ async fn main() {
     let db = Database::new(&db_path).expect("Falha ao inicializar SQLite com WAL mode");
     let state = AppState::new(db);
 
+    // Rotina periódica de auto-purge para higienização de boards antigos (Padrão: 60 dias)
+    let retention_days: i64 = std::env::var("BOARD_RETENTION_DAYS")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(60);
+
+    let cleanup_state = state.clone();
+    tokio::spawn(async move {
+        // Checar na inicialização e a cada 24 horas
+        let mut interval = tokio::time::interval(std::time::Duration::from_secs(24 * 3600));
+        loop {
+            interval.tick().await;
+            match cleanup_state.db.cleanup_expired_boards(retention_days) {
+                Ok(count) if count > 0 => {
+                    tracing::info!(
+                        purged_boards = count,
+                        retention_days = retention_days,
+                        "Auto-purge: boards com mais de {} dias removidos com sucesso",
+                        retention_days
+                    );
+                }
+                Ok(_) => {}
+                Err(e) => {
+                    tracing::warn!(error = %e, "Erro ao executar rotina de auto-purge de boards no DailyYrd");
+                }
+            }
+        }
+    });
+
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)

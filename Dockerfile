@@ -43,6 +43,7 @@ ENV PORT=8081
 ENV DATABASE_URL=/app/data/daily.db
 ENV STATIC_DIR=/app/dist
 ENV RUST_LOG=backend=info,tower_http=info
+ENV BOARD_RETENTION_DAYS=60
 
 EXPOSE 8081
 

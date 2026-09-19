@@ -181,6 +181,17 @@ impl Database {
         )
     }
 
+    pub fn cleanup_expired_boards(&self, retention_days: i64) -> Result<usize> {
+        let conn = self.get_conn();
+        let now = now_ts();
+        let cutoff_ms = now - (retention_days * 24 * 3600 * 1000);
+        let count = conn.execute(
+            "DELETE FROM boards WHERE created_at < ?1",
+            params![cutoff_ms],
+        )?;
+        Ok(count)
+    }
+
     pub fn get_available_dates(&self, board_id: &str) -> Result<Vec<String>> {
         let conn = self.get_conn();
         let mut stmt = conn.prepare(
@@ -577,5 +588,52 @@ mod tests {
             session_hash: "sess_x".to_string(),
         };
         assert!(req_bad_date.validate().is_err());
+    }
+
+    #[test]
+    fn test_cleanup_expired_boards() {
+        let db = Database::new(":memory:").expect("Failed to create in-memory db");
+
+        // Board 1: created 70 days ago (expired with 60 days retention)
+        let old_created_at = now_ts() - (70 * 24 * 3600 * 1000);
+        db.get_conn().execute(
+            "INSERT INTO boards (id, title, description, facilitator_token, created_at)
+             VALUES ('board_old', 'Old Team', 'Old Desc', 'tok_old', ?1)",
+            params![old_created_at],
+        ).unwrap();
+
+        // Checkin in old board
+        let req_old = SaveCheckInRequest {
+            date: "2026-07-01".to_string(),
+            user_name: "Old User".to_string(),
+            role: None,
+            avatar_color: None,
+            yesterday: "Old task".to_string(),
+            today: "Done".to_string(),
+            blockers: None,
+            has_blockers: false,
+            mood: None,
+            session_hash: "sess_old".to_string(),
+        };
+        db.save_checkin("board_old", &req_old).unwrap();
+
+        // Board 2: created today (fresh)
+        let b2 = db.create_board("board_fresh", "Fresh Team", "", "tok_fresh", 900, None).unwrap();
+
+        // Verify both exist
+        assert!(db.get_board("board_old").unwrap().is_some());
+        assert!(db.get_board(&b2.id).unwrap().is_some());
+
+        // Run cleanup with 60 days
+        let purged = db.cleanup_expired_boards(60).unwrap();
+        assert_eq!(purged, 1);
+
+        // board_old should be gone, including its checkins via cascade
+        assert!(db.get_board("board_old").unwrap().is_none());
+        let checkins_old = db.get_checkins("board_old", "2026-07-01").unwrap();
+        assert_eq!(checkins_old.len(), 0);
+
+        // Fresh board should remain intact
+        assert!(db.get_board(&b2.id).unwrap().is_some());
     }
 }

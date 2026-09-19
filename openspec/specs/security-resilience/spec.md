@@ -13,3 +13,8 @@
 - **Nomes de Time**: 1 a 100 caracteres.
 - **Descrições**: Máximo de 1000 caracteres.
 - **Proteção contra Indexação**: Rota `/robots.txt` responde com `Disallow: /` para impedir indexação de boards internos por motores de busca.
+
+## 4. Política de Retenção de Dados e Auto-Purge
+- **Regra**: O sistema executa rotina periódica em segundo plano (na inicialização e a cada 24 horas via `tokio::time::interval`) para higienização e purga de boards inativos.
+- **Configuração**: Variável de ambiente `BOARD_RETENTION_DAYS` (padrão: `60`).
+- **Cascata**: A exclusão do board remove em cascata (`ON DELETE CASCADE`) todos os check-ins, impedimentos, timer e registros do time.
