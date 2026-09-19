@@ -60,55 +60,21 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        backgroundColor: 'var(--bg-header)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid var(--border-subtle)',
-        padding: '0.85rem 1.75rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '1rem',
-      }}
-    >
+    <header className="app-header">
       {/* Brand & Board Info */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+      <div className="header-left" style={{ gap: '0.85rem' }}>
         <a
           href="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.6rem',
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
+          className="brand-logo"
+          title="DailyYrd - Início"
+          aria-label="DailyYrd Home"
         >
-          <div
-            style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: 'var(--radius-md)',
-              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 16px var(--color-primary-glow)',
-            }}
-          >
-            <Clock size={20} color="#ffffff" />
+          <div className="brand-icon-box">
+            <Clock size={18} />
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em' }}>
-                Daily<span style={{ color: 'var(--color-primary)' }}>Yrd</span>
-              </span>
-            </div>
-          </div>
+          <span className="brand-title">
+            Daily<span style={{ color: 'var(--color-primary)' }}>Yrd</span>
+          </span>
         </a>
 
         <EcosystemSwitcher currentApp="daily" />
@@ -120,6 +86,7 @@ export const Header: React.FC<HeaderProps> = ({
               width: '1px',
               backgroundColor: 'var(--border-subtle)',
               margin: '0 0.25rem',
+              flexShrink: 0,
             }}
           />
         )}

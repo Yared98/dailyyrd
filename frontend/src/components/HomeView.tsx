@@ -116,116 +116,139 @@ export const HomeView: React.FC<HomeViewProps> = ({
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem 1.5rem',
         background: 'transparent',
         position: 'relative',
         transition: 'background var(--transition-smooth)',
       }}
     >
-      {/* Top Bar Controls (Ecosystem, Language, Theme, GitHub) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '1.25rem',
-          right: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.6rem',
-          zIndex: 10,
-        }}
-      >
-        <EcosystemSwitcher currentApp="daily" />
+      {/* Top Menu Bar Padronizado */}
+      <header className="app-header">
+        <div className="header-left">
+          <a href="/" className="brand-logo" title="DailyYrd - Início" aria-label="DailyYrd Home">
+            <div className="brand-icon-box">
+              <Clock size={18} />
+            </div>
+            <span className="brand-title">
+              Daily<span style={{ color: 'var(--color-primary)' }}>Yrd</span>
+            </span>
+          </a>
+          <EcosystemSwitcher currentApp="daily" />
+        </div>
 
-        {/* Botão MCP Padronizado */}
-        <button
-          onClick={() => setShowMcpModal(true)}
-          className="btn-secondary"
-          style={{
-            padding: '0.35rem 0.65rem',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            background: 'var(--color-primary-subtle, rgba(99, 102, 241, 0.15))',
-            border: '1px solid var(--border-primary, rgba(99, 102, 241, 0.35))',
-            color: 'var(--color-primary)',
-            cursor: 'pointer',
-            transition: 'all var(--transition-fast, 0.15s ease)',
-          }}
-          title={t('mcp.button_title', 'Configurar Servidor MCP (IA)')}
-        >
-          <Bot size={13} />
-          <span>MCP</span>
-        </button>
-
-        {/* Alternador de Idioma */}
-        <button
-          onClick={toggleLanguage}
-          className="btn-secondary"
-          style={{
-            padding: '0.35rem 0.65rem',
-            borderRadius: 'var(--radius-full)',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-          }}
-          title={t('app.languageToggle')}
-        >
-          <Globe size={13} />
-          <span>{i18n.language.startsWith('en') ? 'EN' : 'PT'}</span>
-        </button>
-
-        {/* Alternador de Tema */}
-        {onToggleTheme && (
+        <div className="header-right">
+          {/* Botão MCP Padronizado */}
           <button
-            onClick={onToggleTheme}
+            onClick={() => setShowMcpModal(true)}
             className="btn-secondary"
             style={{
               padding: '0.35rem 0.65rem',
               borderRadius: 'var(--radius-full)',
               fontSize: '0.75rem',
-              fontWeight: 600,
+              fontWeight: 700,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: 'var(--color-primary-subtle, rgba(99, 102, 241, 0.15))',
+              border: '1px solid var(--border-primary, rgba(99, 102, 241, 0.35))',
+              color: 'var(--color-primary)',
+              cursor: 'pointer',
+              transition: 'all var(--transition-fast, 0.15s ease)',
             }}
-            title={theme === 'dark' ? t('app.themeToggle') : t('app.themeToggle')}
+            title={t('mcp.button_title', 'Configurar Servidor MCP (IA)')}
           >
-            {theme === 'dark' ? <Sun size={14} color="#fbbf24" /> : <Moon size={14} color="var(--color-primary)" />}
+            <Bot size={13} />
+            <span>MCP</span>
           </button>
-        )}
 
-        {/* Link GitHub */}
-        <a
-          href="https://github.com/Yared98/dailyyrd"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-secondary"
-          style={{
-            padding: '0.35rem 0.55rem',
-            borderRadius: 'var(--radius-full)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
-          title={t('footer.github_title', 'Ver código-fonte do DailyYrd no GitHub')}
-          aria-label="GitHub"
-        >
-          <GithubIcon size={14} />
-        </a>
-      </div>
+          {/* Alternador de Idioma */}
+          <button
+            onClick={toggleLanguage}
+            className="btn-secondary"
+            style={{
+              padding: '0.35rem 0.65rem',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border-subtle)',
+              color: 'var(--text-main)',
+              cursor: 'pointer',
+            }}
+            title={t('app.languageToggle')}
+          >
+            <Globe size={13} />
+            <span>{i18n.language.startsWith('en') ? 'EN' : 'PT'}</span>
+          </button>
 
-      {/* Hero Header Outside Card */}
-      <div style={{ maxWidth: '480px', width: '100%', textAlign: 'center', marginBottom: '2rem' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)', padding: '0.5rem 1rem', borderRadius: 'var(--radius-full)', marginBottom: '1rem' }}>
-          <div className="brand-icon-box">
-            <Clock size={18} />
-          </div>
-          <span style={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
-            DailyYrd
-          </span>
+          {/* Alternador de Tema */}
+          {onToggleTheme && (
+            <button
+              onClick={onToggleTheme}
+              className="btn-secondary"
+              style={{
+                padding: '0.35rem 0.65rem',
+                borderRadius: 'var(--radius-full)',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--text-main)',
+                cursor: 'pointer',
+              }}
+              title={theme === 'dark' ? t('app.themeToggle') : t('app.themeToggle')}
+            >
+              {theme === 'dark' ? <Sun size={14} color="#fbbf24" /> : <Moon size={14} color="var(--color-primary)" />}
+            </button>
+          )}
+
+          {/* Link GitHub */}
+          <a
+            href="https://github.com/Yared98/dailyyrd"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary"
+            style={{
+              padding: '0.35rem 0.55rem',
+              borderRadius: 'var(--radius-full)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              textDecoration: 'none',
+              color: 'inherit',
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border-subtle)',
+            }}
+            title={t('footer.github_title', 'Ver código-fonte do DailyYrd no GitHub')}
+            aria-label="GitHub"
+          >
+            <GithubIcon size={14} />
+          </a>
         </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem 1.5rem',
+          width: '100%',
+        }}
+      >
+        {/* Hero Header Outside Card */}
+        <div style={{ maxWidth: '480px', width: '100%', textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-primary-subtle)', border: '1px solid var(--border-primary)', padding: '0.35rem 0.85rem', borderRadius: 'var(--radius-full)', marginBottom: '1rem', color: 'var(--color-primary)', fontSize: '0.8rem', fontWeight: 700 }}>
+            <Clock size={14} />
+            <span>DailyYrd</span>
+          </div>
 
         <h1 style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.2 }}>
           {t('createModal.title')}
@@ -909,6 +932,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* Footer no rodapé da página */}
       <Footer style={{ borderTop: 'none', marginTop: '2.5rem', width: '100%', maxWidth: '480px' }} />
+
+      </div>
 
       {/* Modal MCP */}
       <McpModal
