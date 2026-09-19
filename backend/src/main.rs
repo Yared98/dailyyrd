@@ -42,7 +42,9 @@ async fn main() {
     let state = AppState::new(db);
 
     // Rotina periódica de auto-purge para higienização de boards antigos (Padrão: 60 dias)
-    let retention_days: i64 = std::env::var("BOARD_RETENTION_DAYS")
+    // Aceita RETENTION_DAYS unificada ou BOARD_RETENTION_DAYS específica
+    let retention_days: i64 = std::env::var("RETENTION_DAYS")
+        .or_else(|_| std::env::var("BOARD_RETENTION_DAYS"))
         .ok()
         .and_then(|s| s.parse().ok())
         .unwrap_or(60);

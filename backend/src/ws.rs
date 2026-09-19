@@ -100,6 +100,11 @@ async fn handle_socket(
         while let Some(Ok(msg)) = receiver.next().await {
             match msg {
                 Message::Text(text) => {
+                    // Limite de tamanho: previne DoS por mensagens gigantes
+                    if text.len() > 65_536 {
+                        warn!(session = %session_hash_clone, "Mensagem WebSocket excessivamente grande descartada ({} bytes)", text.len());
+                        continue;
+                    }
                     if let Ok(parsed) = serde_json::from_str::<WsMessage>(&text) {
                         handle_incoming_message(
                             parsed,
@@ -174,6 +179,10 @@ async fn handle_incoming_message(
         }
 
         "START_MEETING" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de iniciar reunião no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let default_timer = state
                 .db
@@ -211,6 +220,10 @@ async fn handle_incoming_message(
         }
 
         "END_MEETING" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de encerrar reunião no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let default_timer = 90;
             let mut current = state.db.get_meeting_state(board_id, date, default_timer).unwrap_or_default();
@@ -223,6 +236,10 @@ async fn handle_incoming_message(
         }
 
         "SHUFFLE_ORDER" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de embaralhar ordem no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let default_timer = 90;
             let mut current = state.db.get_meeting_state(board_id, date, default_timer).unwrap_or_default();
@@ -241,6 +258,10 @@ async fn handle_incoming_message(
         }
 
         "NEXT_SPEAKER" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de avançar orador no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let default_timer = state
                 .db
@@ -264,6 +285,10 @@ async fn handle_incoming_message(
         }
 
         "PREV_SPEAKER" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de voltar orador no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let default_timer = state
                 .db
@@ -286,6 +311,10 @@ async fn handle_incoming_message(
         }
 
         "SET_SPEAKER" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de definir orador no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let index = msg.payload.get("index").and_then(|v| v.as_i64()).unwrap_or(0) as i32;
             let default_timer = state
@@ -310,6 +339,10 @@ async fn handle_incoming_message(
         }
 
         "START_TIMER" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de iniciar timer no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let raw_seconds = msg
                 .payload
@@ -328,6 +361,10 @@ async fn handle_incoming_message(
         }
 
         "PAUSE_TIMER" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de pausar timer no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let default_timer = 90;
             let mut current = state.db.get_meeting_state(board_id, date, default_timer).unwrap_or_default();
@@ -353,6 +390,10 @@ async fn handle_incoming_message(
         }
 
         "RESET_TIMER" => {
+            if !is_facilitator {
+                warn!(session = %session_hash, "Tentativa não autorizada de resetar timer no board {}", board_id);
+                return;
+            }
             let date = msg.payload.get("date").and_then(|v| v.as_str()).unwrap_or("");
             let raw_seconds = msg
                 .payload

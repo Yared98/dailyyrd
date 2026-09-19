@@ -17,7 +17,13 @@ import {
   AlertTriangle,
   Bot,
 } from 'lucide-react';
-import { getRecentBoards, removeRecentBoard, type RecentBoard } from '../utils/session';
+import {
+  getRecentBoards,
+  removeRecentBoard,
+  getSavedUserProfile,
+  saveUserProfile,
+  type RecentBoard,
+} from '../utils/session';
 import { EcosystemSwitcher } from './EcosystemSwitcher';
 import { McpModal } from './McpModal';
 import { GithubIcon, Footer } from './Footer';
@@ -41,6 +47,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onToggleTheme,
 }) => {
   const { t, i18n } = useTranslation();
+  const [userName, setUserName] = useState(() => getSavedUserProfile().name);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [timerSeconds, setTimerSeconds] = useState(90);
@@ -57,6 +64,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const handleJoinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!joinCode.trim()) return;
+    if (userName.trim()) {
+      saveUserProfile({ name: userName.trim() });
+    }
     onSelectBoard(joinCode.trim());
   };
 
@@ -80,6 +90,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     if (!title.trim()) {
       setErrorMsg(t('createModal.boardNamePlaceholder'));
       return;
+    }
+
+    if (userName.trim()) {
+      saveUserProfile({ name: userName.trim() });
     }
 
     setIsSubmitting(true);
@@ -366,6 +380,39 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 marginBottom: '0.4rem',
               }}
             >
+              {t('checkinModal.nameLabel', 'Seu Nome / Apelido')} *
+            </label>
+            <input
+              type="text"
+              required
+              maxLength={60}
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              placeholder={t('checkinModal.namePlaceholder', 'Como o time te conhece?')}
+              style={{
+                width: '100%',
+                background: 'var(--bg-input, var(--bg-surface))',
+                border: '1px solid var(--border-highlight, var(--border-subtle))',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.75rem 1rem',
+                color: 'var(--text-main)',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'border-color var(--transition-fast)',
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '0.8rem',
+                fontWeight: 600,
+                color: 'var(--text-main)',
+                marginBottom: '0.4rem',
+              }}
+            >
               {t('createModal.boardName')} *
             </label>
             <input
@@ -460,7 +507,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           <button
             type="submit"
-            disabled={isSubmitting || !title.trim()}
+            disabled={isSubmitting || !title.trim() || !userName.trim()}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -473,8 +520,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               borderRadius: 'var(--radius-md)',
               fontSize: '0.95rem',
               fontWeight: 700,
-              cursor: isSubmitting || !title.trim() ? 'not-allowed' : 'pointer',
-              opacity: isSubmitting || !title.trim() ? 0.6 : 1,
+              cursor: isSubmitting || !title.trim() || !userName.trim() ? 'not-allowed' : 'pointer',
+              opacity: isSubmitting || !title.trim() || !userName.trim() ? 0.6 : 1,
               boxShadow: 'var(--shadow-sm)',
               transition: 'all var(--transition-fast)',
               marginTop: '0.4rem',
@@ -488,6 +535,31 @@ export const HomeView: React.FC<HomeViewProps> = ({
         ) : (
           /* Formulário de Entrada */
           <form onSubmit={handleJoinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
+                {t('checkinModal.nameLabel', 'Seu Nome / Apelido')} *
+              </label>
+              <input
+                type="text"
+                required
+                maxLength={60}
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                placeholder={t('checkinModal.namePlaceholder', 'Como o time te conhece?')}
+                style={{
+                  width: '100%',
+                  background: 'var(--bg-input, var(--bg-surface))',
+                  border: '1px solid var(--border-highlight, var(--border-subtle))',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '0.75rem 1rem',
+                  color: 'var(--text-main)',
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  transition: 'border-color var(--transition-fast)',
+                }}
+              />
+            </div>
+
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.4rem' }}>
                 {t('home.joinCodeLabel')}
@@ -515,7 +587,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             <button
               type="submit"
-              disabled={!joinCode.trim()}
+              disabled={!joinCode.trim() || !userName.trim()}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -528,8 +600,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 borderRadius: 'var(--radius-md)',
                 fontSize: '0.95rem',
                 fontWeight: 700,
-                cursor: !joinCode.trim() ? 'not-allowed' : 'pointer',
-                opacity: !joinCode.trim() ? 0.6 : 1,
+                cursor: !joinCode.trim() || !userName.trim() ? 'not-allowed' : 'pointer',
+                opacity: !joinCode.trim() || !userName.trim() ? 0.6 : 1,
                 boxShadow: 'var(--shadow-sm)',
                 transition: 'all var(--transition-fast)',
                 marginTop: '0.4rem',

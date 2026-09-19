@@ -180,18 +180,42 @@ export const CheckInModal: React.FC<CheckInModalProps> = ({
           {/* User Info Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
-                {t('checkinModal.nameLabel')} *
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>
+                <span>{t('checkinModal.nameLabel')} *</span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                  ({t('identity.verified_identity', 'Sua Identidade')})
+                </span>
               </label>
-              <input
-                type="text"
-                className="input-field"
-                placeholder={t('checkinModal.namePlaceholder')}
-                value={userName}
-                maxLength={60}
-                onChange={(e) => setUserName(e.target.value)}
-                required
-              />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder={t('checkinModal.namePlaceholder')}
+                  value={userName}
+                  maxLength={60}
+                  onChange={(e) => setUserName(e.target.value)}
+                  required
+                  style={{ paddingLeft: '2.4rem' }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '0.55rem',
+                    width: 22,
+                    height: 22,
+                    borderRadius: '50%',
+                    backgroundColor: avatarColor,
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  {userName ? userName.charAt(0).toUpperCase() : '?'}
+                </div>
+              </div>
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.35rem' }}>

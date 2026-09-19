@@ -27,6 +27,8 @@ interface HeaderProps {
   onlineCount: number;
   isFacilitator: boolean;
   theme: 'dark' | 'light';
+  userName?: string;
+  onEditIdentity?: () => void;
   onToggleTheme: () => void;
   onOpenCreateBoard: () => void;
 }
@@ -39,6 +41,8 @@ export const Header: React.FC<HeaderProps> = ({
   onlineCount,
   isFacilitator,
   theme,
+  userName,
+  onEditIdentity,
   onToggleTheme,
   onOpenCreateBoard,
 }) => {
@@ -119,7 +123,9 @@ export const Header: React.FC<HeaderProps> = ({
                   border: '1px solid var(--border-primary)',
                   color: 'var(--color-primary)',
                   flexShrink: 0,
+                  cursor: 'help',
                 }}
+                title={t('app.facilitatorTooltip', 'Você é o Facilitador desta sessão')}
               >
                 FAC
               </span>
@@ -174,6 +180,45 @@ export const Header: React.FC<HeaderProps> = ({
           <PlusCircle size={14} color="var(--color-primary)" />
           <span className="header-btn-text">{t('app.newBoard')}</span>
         </button>
+
+        {/* User Identity Badge */}
+        {userName && (
+          <button
+            onClick={onEditIdentity}
+            className="btn-secondary"
+            style={{
+              padding: '0.28rem 0.65rem',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: 'pointer',
+            }}
+            title={t('identity.edit_identity', 'Alterar meu nome')}
+          >
+            <div
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                backgroundColor: 'var(--color-primary-subtle, rgba(99, 102, 241, 0.15))',
+                color: 'var(--color-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '0.7rem',
+                fontWeight: 800,
+              }}
+            >
+              {userName.charAt(0).toUpperCase()}
+            </div>
+            <span className="header-btn-text" style={{ maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {userName}
+            </span>
+          </button>
+        )}
 
         {/* Language switch */}
         <button

@@ -2,7 +2,8 @@ export function getSessionHash(): string {
   const KEY = 'dailyyrd_session_hash';
   let hash = localStorage.getItem(KEY);
   if (!hash) {
-    hash = 'usr_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+    // crypto.randomUUID() para entropia criptográfica adequada
+    hash = 'usr_' + crypto.randomUUID().replace(/-/g, '').substring(0, 16);
     localStorage.setItem(KEY, hash);
   }
   return hash;
@@ -15,17 +16,29 @@ export interface UserProfile {
 }
 
 export function getSavedUserProfile(): UserProfile {
+  let name = '';
+  try {
+    name = localStorage.getItem('yrd_profile_name') || localStorage.getItem('dailyyrd_user_name') || '';
+  } catch {}
   return {
-    name: localStorage.getItem('dailyyrd_user_name') || '',
+    name,
     role: localStorage.getItem('dailyyrd_user_role') || '',
     avatarColor: localStorage.getItem('dailyyrd_user_color') || '#6366F1',
   };
 }
 
 export function saveUserProfile(profile: Partial<UserProfile>): void {
-  if (profile.name !== undefined) localStorage.setItem('dailyyrd_user_name', profile.name);
-  if (profile.role !== undefined) localStorage.setItem('dailyyrd_user_role', profile.role);
-  if (profile.avatarColor !== undefined) localStorage.setItem('dailyyrd_user_color', profile.avatarColor);
+  try {
+    if (profile.name !== undefined) {
+      const clean = profile.name.trim();
+      localStorage.setItem('dailyyrd_user_name', clean);
+      if (clean) {
+        localStorage.setItem('yrd_profile_name', clean);
+      }
+    }
+    if (profile.role !== undefined) localStorage.setItem('dailyyrd_user_role', profile.role);
+    if (profile.avatarColor !== undefined) localStorage.setItem('dailyyrd_user_color', profile.avatarColor);
+  } catch {}
 }
 
 export function getFacilitatorToken(boardId: string): string | null {

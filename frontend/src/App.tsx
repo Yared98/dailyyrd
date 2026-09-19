@@ -13,6 +13,7 @@ import { CheckInModal } from './components/CheckInModal';
 import { LiveMeetingModal } from './components/LiveMeetingModal';
 import { ExportModal } from './components/ExportModal';
 import { CreateBoardModal } from './components/CreateBoardModal';
+import { IdentityModal } from './components/IdentityModal';
 import { Footer } from './components/Footer';
 import { useDailySocket } from './hooks/useDailySocket';
 import {
@@ -20,6 +21,7 @@ import {
   getFacilitatorToken,
   saveFacilitatorToken,
   addRecentBoard,
+  getSavedUserProfile,
 } from './utils/session';
 import { initAnalytics, trackPageView } from './utils/analytics';
 
@@ -53,6 +55,15 @@ export function App() {
     const d = new Date();
     return d.toISOString().split('T')[0];
   });
+  const [userName, setUserName] = useState<string>(() => getSavedUserProfile().name);
+  const [showIdentityModal, setShowIdentityModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (currentBoardId && !userName) {
+      setShowIdentityModal(true);
+    }
+  }, [currentBoardId, userName]);
+
   const [onlineCount, setOnlineCount] = useState<number>(1);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -299,6 +310,8 @@ export function App() {
         onlineCount={onlineCount}
         isFacilitator={boardSnapshot?.is_facilitator || !!facilitatorToken}
         theme={theme}
+        userName={userName}
+        onEditIdentity={() => setShowIdentityModal(true)}
         onToggleTheme={toggleTheme}
         onOpenCreateBoard={() => setIsCreateBoardModalOpen(true)}
       />
@@ -384,6 +397,16 @@ export function App() {
         isOpen={isCreateBoardModalOpen}
         onClose={() => setIsCreateBoardModalOpen(false)}
         onCreate={handleCreateBoard}
+      />
+
+      <IdentityModal
+        isOpen={showIdentityModal}
+        onClose={() => setShowIdentityModal(false)}
+        onSave={(name) => {
+          setUserName(name);
+          setShowIdentityModal(false);
+        }}
+        isMandatory={!userName}
       />
 
       <Footer />
