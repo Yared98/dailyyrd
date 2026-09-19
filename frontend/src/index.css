@@ -98,9 +98,9 @@
   --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.75);
   --shadow-elevated: 0 20px 40px -10px rgba(0, 0, 0, 0.8);
-  --shadow-glow: 0 0 24px rgba(16, 185, 129, 0.35);
+  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.25);
 
-  --bg-canvas-radial: radial-gradient(circle at 50% 20%, #064e3b33 0%, var(--bg-canvas) 80%);
+  --bg-canvas-radial: radial-gradient(100% 55% at 50% 0%, rgba(16, 185, 129, 0.07) 0%, rgba(9, 13, 22, 0) 100%), #090d16;
 
   --scrollbar-track: #090d16;
   --scrollbar-thumb: rgba(255, 255, 255, 0.15);
