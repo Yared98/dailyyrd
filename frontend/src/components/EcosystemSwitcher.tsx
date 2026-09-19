@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Layers, Clock, ShieldCheck, ChevronDown, Sparkles, ExternalLink } from 'lucide-react';
+import { Layers, Clock, ShieldCheck, Coffee, ChevronDown, Sparkles, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export interface EcosystemSwitcherProps {
-  currentApp?: 'retro' | 'daily' | 'planning';
+  currentApp?: 'retro' | 'daily' | 'planning' | 'coffee';
 }
 
 export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp = 'daily' }) => {
@@ -12,16 +12,23 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
   const { i18n } = useTranslation();
   const isEn = i18n.language.startsWith('en');
 
-  const getAppUrl = (app: 'retro' | 'daily' | 'planning') => {
-    const isDev = window.location.port === '5173' || window.location.port === '8080' || window.location.port === '8081' || window.location.port === '3000';
+  const getAppUrl = (app: 'retro' | 'daily' | 'planning' | 'coffee') => {
+    const isDev =
+      window.location.port === '5173' ||
+      window.location.port === '8080' ||
+      window.location.port === '8081' ||
+      window.location.port === '8082' ||
+      window.location.port === '3000';
     if (isDev) {
       if (app === 'retro') return 'http://localhost:8080';
       if (app === 'daily') return 'http://localhost:8081';
       if (app === 'planning') return 'http://localhost:3000';
+      if (app === 'coffee') return 'http://localhost:8082';
     }
     if (app === 'retro') return (import.meta as any).env?.VITE_RETRO_URL || 'https://retro.yared.com.br';
     if (app === 'daily') return (import.meta as any).env?.VITE_DAILY_URL || 'https://daily.yared.com.br';
     if (app === 'planning') return (import.meta as any).env?.VITE_PLANNING_URL || 'https://planning.yared.com.br';
+    if (app === 'coffee') return (import.meta as any).env?.VITE_COFFEE_URL || 'https://coffee.yared.com.br';
     return '#';
   };
 
@@ -59,8 +66,16 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
       name: 'PlanningYrd',
       desc: isEn ? 'Real-time collaborative planning poker' : 'Planning poker colaborativo em tempo real',
       icon: Layers,
-      color: '#f59e0b',
+      color: '#3b82f6',
       url: getAppUrl('planning'),
+    },
+    {
+      id: 'coffee' as const,
+      name: 'CoffeeYrd',
+      desc: isEn ? 'Lean Coffee agenda-less meetings' : 'Reuniões Lean Coffee com timeboxes',
+      icon: Coffee,
+      color: '#f59e0b',
+      url: getAppUrl('coffee'),
     },
   ];
 
