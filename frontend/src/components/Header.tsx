@@ -17,6 +17,7 @@ import {
 import { EcosystemSwitcher } from './EcosystemSwitcher';
 import { McpModal } from './McpModal';
 import { GithubIcon } from './Footer';
+import { copyToClipboard } from '../utils/clipboard';
 import type { DailyBoard } from '../types';
 
 interface HeaderProps {
@@ -50,10 +51,20 @@ export const Header: React.FC<HeaderProps> = ({
   const [copied, setCopied] = React.useState(false);
   const [showMcpModal, setShowMcpModal] = React.useState(false);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyLink = async () => {
+    let inviteUrl = window.location.href;
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('token');
+      inviteUrl = url.toString();
+    } catch {
+      // fallback
+    }
+    const success = await copyToClipboard(inviteUrl);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const toggleLanguage = () => {

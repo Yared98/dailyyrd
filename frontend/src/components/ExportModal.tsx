@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Copy, Check, FileText, Send } from 'lucide-react';
+import { copyToClipboard } from '../utils/clipboard';
 import type { CheckIn, DailyBoard } from '../types';
 
 interface ExportModalProps {
@@ -88,10 +89,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
   const content = tab === 'slack' ? generateSlackText() : generateMarkdownText();
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    const success = await copyToClipboard(content);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (

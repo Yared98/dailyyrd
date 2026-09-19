@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Bot, Copy, Check, Terminal, Shield, Key, Sparkles, BookOpen, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { copyToClipboard } from '../utils/clipboard';
 
 interface McpModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ export const McpModal: React.FC<McpModalProps> = ({
   onClose,
   boardId,
   isFacilitator,
-  facilitatorToken,
+  facilitatorToken: _facilitatorToken,
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'config' | 'tools' | 'guide'>('config');
@@ -30,13 +31,10 @@ export const McpModal: React.FC<McpModalProps> = ({
   if (!isOpen) return null;
   if (typeof document === 'undefined') return null;
 
-  const mcpServerUrl = `${window.location.origin}/mcp`;
-  const todayUri = boardId
-    ? `daily://board/${boardId}/today${isFacilitator && facilitatorToken ? `?token=${facilitatorToken}` : ''}`
-    : 'daily://board/{board_id}/today';
-  const blockersUri = boardId
-    ? `daily://board/${boardId}/blockers`
-    : 'daily://board/{board_id}/blockers';
+  const baseUrl = window.location.origin;
+  const mcpServerUrl = `${baseUrl}/mcp`;
+  const todayUri = `daily://${boardId || 'current'}/today`;
+  const blockersUri = `daily://${boardId || 'current'}/blockers`;
 
   const jsonConfigSnippet = JSON.stringify(
     {
@@ -50,13 +48,11 @@ export const McpModal: React.FC<McpModalProps> = ({
     2
   );
 
-  const copyToClipboard = (text: string, setCopiedState: (v: boolean) => void) => {
-    try {
-      navigator.clipboard.writeText(text);
+  const copyWithFeedback = async (text: string, setCopiedState: (v: boolean) => void) => {
+    const success = await copyToClipboard(text);
+    if (success) {
       setCopiedState(true);
       setTimeout(() => setCopiedState(false), 2000);
-    } catch {
-      // Fallback
     }
   };
 
@@ -451,7 +447,7 @@ export const McpModal: React.FC<McpModalProps> = ({
                     }}
                   />
                   <button
-                    onClick={() => copyToClipboard(mcpServerUrl, setCopiedUrl)}
+                    onClick={() => copyWithFeedback(mcpServerUrl, setCopiedUrl)}
                     className="btn-secondary"
                     style={{
                       display: 'inline-flex',
@@ -493,7 +489,7 @@ export const McpModal: React.FC<McpModalProps> = ({
                       title="Status completo de check-ins de hoje"
                     />
                     <button
-                      onClick={() => copyToClipboard(todayUri, setCopiedTodayUri)}
+                      onClick={() => copyWithFeedback(todayUri, setCopiedTodayUri)}
                       className="btn-secondary"
                       style={{
                         display: 'inline-flex',
@@ -528,7 +524,7 @@ export const McpModal: React.FC<McpModalProps> = ({
                       title="Lista de impedimentos ativos"
                     />
                     <button
-                      onClick={() => copyToClipboard(blockersUri, setCopiedBlockersUri)}
+                      onClick={() => copyWithFeedback(blockersUri, setCopiedBlockersUri)}
                       className="btn-secondary"
                       style={{
                         display: 'inline-flex',
@@ -555,7 +551,7 @@ export const McpModal: React.FC<McpModalProps> = ({
                     {t('mcp.json_config_label', '3. Configuração JSON (Claude Desktop / Cursor)')}
                   </span>
                   <button
-                    onClick={() => copyToClipboard(jsonConfigSnippet, setCopiedConfig)}
+                    onClick={() => copyWithFeedback(jsonConfigSnippet, setCopiedConfig)}
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',

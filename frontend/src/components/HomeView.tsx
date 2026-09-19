@@ -27,6 +27,7 @@ import {
 import { EcosystemSwitcher } from './EcosystemSwitcher';
 import { McpModal } from './McpModal';
 import { GithubIcon, Footer } from './Footer';
+import { copyToClipboard } from '../utils/clipboard';
 
 interface HomeViewProps {
   onCreate: (data: {
@@ -112,11 +113,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
   };
 
-  const handleCopyInvite = (boardId: string) => {
+  const handleCopyInvite = async (boardId: string) => {
     const url = `${window.location.origin}/board/${boardId}`;
-    navigator.clipboard.writeText(url);
-    setCopiedBoardId(boardId);
-    setTimeout(() => setCopiedBoardId(null), 2000);
+    const success = await copyToClipboard(url);
+    if (success) {
+      setCopiedBoardId(boardId);
+      setTimeout(() => setCopiedBoardId(null), 2000);
+    }
   };
 
   const handleRemoveBoard = (boardId: string) => {
