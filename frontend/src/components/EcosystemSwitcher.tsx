@@ -85,7 +85,7 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
         title="Yrd Agile Toolkit"
       >
         <Sparkles size={13} style={{ color: 'var(--color-primary)' }} />
-        <span>Yrd Toolkit</span>
+        <span className="ecosystem-switcher-label">Yrd Toolkit</span>
         <ChevronDown size={12} style={{ opacity: 0.65, transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
 
