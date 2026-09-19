@@ -156,6 +156,7 @@ O **DailyYrd** faz parte do ecossistema de cerimônias ágeis corporativas sem c
 | **RetroYrd** | Retrospectivas Ágeis com Segurança Psicológica, Modo Cego e Servidor MCP | [retro.yared.com.br](https://retro.yared.com.br) |
 | **DailyYrd** | Standups Diárias com Roleta de Fala, Spotlight de Bloqueios e Exportação Slack | [daily.yared.com.br](https://daily.yared.com.br) |
 | **PlanningYrd** | Planning Poker em Tempo Real, Métricas de Consenso e Backlog de Histórias | [planning.yared.com.br](https://planning.yared.com.br) |
+| **CoffeeYrd** | Lean Coffee com Dot-Voting, Timer, Notas Compartilhadas e Votação Romana | [coffee.yared.com.br](https://coffee.yared.com.br) |
 
 ---
 
