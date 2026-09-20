@@ -1,5 +1,6 @@
 use axum::{
     extract::State,
+    http::HeaderMap,
     response::{IntoResponse, Json},
 };
 use serde::{Deserialize, Serialize};
@@ -42,8 +43,51 @@ pub struct JsonRpcError {
     pub data: Option<Value>,
 }
 
+fn extract_facilitator_token(headers: &HeaderMap, args: &Value) -> Option<String> {
+    if let Some(token) = args.get("facilitator_token").or_else(|| args.get("token")).and_then(|v| v.as_str()) {
+        if !token.trim().is_empty() {
+            return Some(token.trim().to_string());
+        }
+    }
+    if let Some(auth) = headers.get("authorization").and_then(|v| v.to_str().ok()) {
+        if let Some(token) = auth.strip_prefix("Bearer ") {
+            if !token.trim().is_empty() {
+                return Some(token.trim().to_string());
+            }
+        }
+    }
+    if let Some(token) = headers.get("x-facilitator-token").and_then(|v| v.to_str().ok()) {
+        if !token.trim().is_empty() {
+            return Some(token.trim().to_string());
+        }
+    }
+    None
+}
+
+fn verify_facilitator(state: &AppState, board_id: &str, token: Option<&str>) -> Result<(), JsonRpcError> {
+    let board = state.db.get_board(board_id).map_err(|e| JsonRpcError {
+        code: -32603,
+        message: format!("Database error: {}", e),
+        data: None,
+    })?.ok_or_else(|| JsonRpcError {
+        code: -32004,
+        message: format!("Board '{}' not found", board_id),
+        data: None,
+    })?;
+
+    match token {
+        Some(t) if t == board.facilitator_token => Ok(()),
+        _ => Err(JsonRpcError {
+            code: -32003,
+            message: "Unauthorized: Invalid or missing facilitator token".to_string(),
+            data: None,
+        }),
+    }
+}
+
 pub async fn handle_mcp_request(
     State(state): State<AppState>,
+    headers: HeaderMap,
     Json(req): Json<JsonRpcRequest>,
 ) -> impl IntoResponse {
     let id = req.id.clone();
@@ -113,21 +157,21 @@ pub async fn handle_mcp_request(
                     },
                     {
                         "name": "daily_delete_checkin",
-                        "description": "Removes a check-in from the board and broadcasts deletion in real-time.",
+                        "description": "Removes a check-in from the board and broadcasts deletion in real-time. Allowed for original author (via session_hash) or board facilitator.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
                                 "board_id": { "type": "string", "description": "The ULID of the daily board" },
                                 "checkin_id": { "type": "string", "description": "ID of the check-in to delete" },
                                 "session_hash": { "type": "string", "description": "Session hash of the creator (optional if facilitator_token provided)" },
-                                "facilitator_token": { "type": "string", "description": "Facilitator token (optional if session_hash matches creator)" }
+                                "facilitator_token": { "type": "string", "description": "Facilitator token (or via Authorization/x-facilitator-token header)" }
                             },
                             "required": ["board_id", "checkin_id"]
                         }
                     },
                     {
                         "name": "daily_start_meeting",
-                        "description": "Starts the live daily standup meeting timer and speaker rotation with real-time broadcast.",
+                        "description": "Starts the live daily standup meeting timer and speaker rotation with real-time broadcast. Requires facilitator token.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
@@ -137,45 +181,49 @@ pub async fn handle_mcp_request(
                                     "type": "array",
                                     "items": { "type": "string" },
                                     "description": "Custom speaker order list (optional, auto-built from check-ins if omitted)"
-                                }
+                                },
+                                "facilitator_token": { "type": "string", "description": "Facilitator token (or via Authorization/x-facilitator-token header)" }
                             },
                             "required": ["board_id"]
                         }
                     },
                     {
                         "name": "daily_next_speaker",
-                        "description": "Advances to the next speaker in the live meeting and restarts the per-speaker timer.",
+                        "description": "Advances to the next speaker in the live meeting and restarts the per-speaker timer. Requires facilitator token.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
                                 "board_id": { "type": "string", "description": "The ULID of the daily board" },
-                                "date": { "type": "string", "description": "Date in YYYY-MM-DD format (optional, defaults to today)" }
+                                "date": { "type": "string", "description": "Date in YYYY-MM-DD format (optional, defaults to today)" },
+                                "facilitator_token": { "type": "string", "description": "Facilitator token (or via Authorization/x-facilitator-token header)" }
                             },
                             "required": ["board_id"]
                         }
                     },
                     {
                         "name": "daily_set_timer",
-                        "description": "Controls the meeting timer: start, pause, or reset.",
+                        "description": "Controls the meeting timer: start, pause, or reset. Requires facilitator token.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
                                 "board_id": { "type": "string", "description": "The ULID of the daily board" },
                                 "action": { "type": "string", "enum": ["start", "pause", "reset"], "description": "Action to perform on timer" },
                                 "seconds": { "type": "integer", "description": "Duration in seconds (optional, 10 to 600, default 90)" },
-                                "date": { "type": "string", "description": "Date in YYYY-MM-DD format (optional, defaults to today)" }
+                                "date": { "type": "string", "description": "Date in YYYY-MM-DD format (optional, defaults to today)" },
+                                "facilitator_token": { "type": "string", "description": "Facilitator token (or via Authorization/x-facilitator-token header)" }
                             },
                             "required": ["board_id", "action"]
                         }
                     },
                     {
                         "name": "daily_end_meeting",
-                        "description": "Concludes the active live standup meeting.",
+                        "description": "Concludes the active live standup meeting. Requires facilitator token.",
                         "inputSchema": {
                             "type": "object",
                             "properties": {
                                 "board_id": { "type": "string", "description": "The ULID of the daily board" },
-                                "date": { "type": "string", "description": "Date in YYYY-MM-DD format (optional, defaults to today)" }
+                                "date": { "type": "string", "description": "Date in YYYY-MM-DD format (optional, defaults to today)" },
+                                "facilitator_token": { "type": "string", "description": "Facilitator token (or via Authorization/x-facilitator-token header)" }
                             },
                             "required": ["board_id"]
                         }
@@ -201,7 +249,7 @@ pub async fn handle_mcp_request(
             let tool_name = params.get("name").and_then(|v| v.as_str()).unwrap_or("");
             let arguments = params.get("arguments").cloned().unwrap_or(json!({}));
 
-            call_tool(&state, tool_name, arguments).await
+            call_tool(&state, &headers, tool_name, arguments).await
         }
 
         unknown => Err(JsonRpcError {
@@ -310,7 +358,7 @@ async fn read_resource(state: &AppState, uri: &str) -> Result<Value, JsonRpcErro
     })
 }
 
-async fn call_tool(state: &AppState, name: &str, args: Value) -> Result<Value, JsonRpcError> {
+async fn call_tool(state: &AppState, headers: &HeaderMap, name: &str, args: Value) -> Result<Value, JsonRpcError> {
     match name {
         "daily_submit_checkin" => {
             let board_id = args.get("board_id").and_then(|v| v.as_str()).ok_or_else(|| JsonRpcError {
@@ -410,10 +458,10 @@ async fn call_tool(state: &AppState, name: &str, args: Value) -> Result<Value, J
             })?;
 
             let session_hash = args.get("session_hash").and_then(|v| v.as_str()).unwrap_or("");
-            let facilitator_token = args.get("facilitator_token").and_then(|v| v.as_str());
+            let token = extract_facilitator_token(headers, &args);
 
-            let is_facilitator = if let Some(token) = facilitator_token {
-                state.db.get_board(board_id).ok().flatten().map(|b| b.facilitator_token == token).unwrap_or(false)
+            let is_facilitator = if let Some(ref t) = token {
+                state.db.get_board(board_id).ok().flatten().map(|b| b.facilitator_token == *t).unwrap_or(false)
             } else {
                 false
             };
@@ -456,6 +504,9 @@ async fn call_tool(state: &AppState, name: &str, args: Value) -> Result<Value, J
                 message: "Missing 'board_id' argument".to_string(),
                 data: None,
             })?;
+
+            let token = extract_facilitator_token(headers, &args);
+            verify_facilitator(state, board_id, token.as_deref())?;
 
             let date = args.get("date").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or_else(today_str);
             let default_timer = state.db.get_board(board_id).ok().flatten().map(|b| b.meeting_timer_seconds).unwrap_or(90);
@@ -509,6 +560,9 @@ async fn call_tool(state: &AppState, name: &str, args: Value) -> Result<Value, J
                 data: None,
             })?;
 
+            let token = extract_facilitator_token(headers, &args);
+            verify_facilitator(state, board_id, token.as_deref())?;
+
             let date = args.get("date").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or_else(today_str);
             let default_timer = state.db.get_board(board_id).ok().flatten().map(|b| b.meeting_timer_seconds).unwrap_or(90);
 
@@ -550,6 +604,9 @@ async fn call_tool(state: &AppState, name: &str, args: Value) -> Result<Value, J
                 message: "Missing 'board_id' argument".to_string(),
                 data: None,
             })?;
+
+            let token = extract_facilitator_token(headers, &args);
+            verify_facilitator(state, board_id, token.as_deref())?;
 
             let action = args.get("action").and_then(|v| v.as_str()).unwrap_or("start");
             let date = args.get("date").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or_else(today_str);
@@ -609,6 +666,9 @@ async fn call_tool(state: &AppState, name: &str, args: Value) -> Result<Value, J
                 message: "Missing 'board_id' argument".to_string(),
                 data: None,
             })?;
+
+            let token = extract_facilitator_token(headers, &args);
+            verify_facilitator(state, board_id, token.as_deref())?;
 
             let date = args.get("date").and_then(|v| v.as_str()).map(|s| s.to_string()).unwrap_or_else(today_str);
             let mut current = state.db.get_meeting_state(board_id, &date, 90).unwrap_or_default();
@@ -704,7 +764,8 @@ mod tests {
             params: None,
         };
 
-        let _resp = handle_mcp_request(State(state), Json(req)).await;
+        let headers = HeaderMap::new();
+        let _resp = handle_mcp_request(State(state), headers, Json(req)).await;
     }
 
     #[tokio::test]
@@ -721,6 +782,8 @@ mod tests {
             Some("09:30"),
         ).unwrap();
 
+        let headers = HeaderMap::new();
+
         // 1. Submit check-in via MCP tool
         let submit_args = json!({
             "board_id": board_id,
@@ -732,7 +795,7 @@ mod tests {
             "has_blockers": true
         });
 
-        let call_res = call_tool(&state, "daily_submit_checkin", submit_args).await;
+        let call_res = call_tool(&state, &headers, "daily_submit_checkin", submit_args).await;
         assert!(call_res.is_ok());
         let val = call_res.unwrap();
         assert_eq!(val["has_blockers"], true);
@@ -753,5 +816,42 @@ mod tests {
         let blockers_val = blockers_res.unwrap();
         let blockers_text = blockers_val["contents"][0]["text"].as_str().unwrap();
         assert!(blockers_text.contains("Carol Danvers"));
+    }
+
+    #[tokio::test]
+    async fn test_mcp_meeting_authorization() {
+        let state = setup_test_state();
+        let board_id = "auth_board_test";
+
+        let _board = state.db.create_board(
+            board_id,
+            "Auth Test Daily",
+            "Testing meeting controls",
+            "secret_token_123",
+            90,
+            None,
+        ).unwrap();
+
+        let headers = HeaderMap::new();
+
+        // 1. Attempt to start meeting without facilitator token -> should fail with -32003
+        let start_args_no_token = json!({ "board_id": board_id });
+        let fail_res = call_tool(&state, &headers, "daily_start_meeting", start_args_no_token).await;
+        assert!(fail_res.is_err());
+        assert_eq!(fail_res.unwrap_err().code, -32003);
+
+        // 2. Start meeting with valid facilitator token in args -> should succeed
+        let start_args_token = json!({
+            "board_id": board_id,
+            "facilitator_token": "secret_token_123"
+        });
+        let ok_res = call_tool(&state, &headers, "daily_start_meeting", start_args_token).await;
+        assert!(ok_res.is_ok());
+
+        // 3. Start meeting with valid facilitator token in Authorization header -> should succeed
+        let mut auth_headers = HeaderMap::new();
+        auth_headers.insert("authorization", "Bearer secret_token_123".parse().unwrap());
+        let ok_header_res = call_tool(&state, &auth_headers, "daily_next_speaker", json!({ "board_id": board_id })).await;
+        assert!(ok_header_res.is_ok());
     }
 }
