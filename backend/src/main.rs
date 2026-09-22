@@ -42,6 +42,9 @@ async fn main() {
     let db = Database::new(&db_path).expect("Falha ao inicializar SQLite com WAL mode");
     let state = AppState::new(db, db_path.clone());
 
+    // Inicializa o token de admin (se não definido no .env, gera aleatório e exibe no console)
+    admin::get_or_init_admin_token("DailyYrd");
+
     // Rotina periódica de auto-purge para higienização de boards antigos (Padrão: 60 dias)
     // Aceita RETENTION_DAYS unificada ou BOARD_RETENTION_DAYS específica
     let retention_days: i64 = std::env::var("RETENTION_DAYS")

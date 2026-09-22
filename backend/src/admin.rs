@@ -50,9 +50,33 @@ fn get_client_ip(headers: &HeaderMap) -> String {
     "127.0.0.1".to_string()
 }
 
-/// Recupera o ADMIN_TOKEN configurado via variável de ambiente
-pub fn get_configured_admin_token() -> String {
-    std::env::var("ADMIN_TOKEN").unwrap_or_else(|_| "dev_admin_dailyyrd_secret".to_string())
+static ADMIN_TOKEN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+
+/// Recupera ou gera o ADMIN_TOKEN na inicialização.
+/// Caso não esteja configurado no .env, gera um token aleatório seguro
+/// e exibe com destaque no console do servidor.
+pub fn get_or_init_admin_token(app_name: &str) -> &'static str {
+    ADMIN_TOKEN.get_or_init(|| {
+        if let Ok(token) = std::env::var("ADMIN_TOKEN") {
+            let trimmed = token.trim().to_string();
+            if !trimmed.is_empty() {
+                info!("🔐 [{}] ADMIN_TOKEN carregado a partir do ambiente.", app_name);
+                return trimmed;
+            }
+        }
+        let generated = format!("yrd_admin_{}", Ulid::new().to_string().to_lowercase());
+        println!("\n================================================================================");
+        println!("🔐 [{}] ADMIN_TOKEN NÃO CONFIGURADO NO AMBIENTE (.env)", app_name);
+        println!("🔑 Chave administrativa temporária gerada aleatoriamente para esta execução:");
+        println!("   {}", generated);
+        println!("================================================================================\n");
+        generated
+    })
+}
+
+/// Recupera o ADMIN_TOKEN configurado ou gerado
+pub fn get_configured_admin_token() -> &'static str {
+    get_or_init_admin_token("DailyYrd")
 }
 
 /// Valida se a requisição possui credencial administrativa válida
