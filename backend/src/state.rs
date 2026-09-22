@@ -8,16 +8,22 @@ use crate::models::WsMessage;
 #[derive(Clone)]
 pub struct AppState {
     pub db: Database,
+    pub db_path: String,
     pub channels: Arc<DashMap<String, broadcast::Sender<WsMessage>>>,
     pub presence: Arc<DashMap<String, HashSet<String>>>,
+    pub admin_rate_limiter: Arc<DashMap<String, (u32, std::time::Instant)>>,
+    pub admin_sessions: Arc<DashMap<String, std::time::Instant>>,
 }
 
 impl AppState {
-    pub fn new(db: Database) -> Self {
+    pub fn new(db: Database, db_path: String) -> Self {
         Self {
             db,
+            db_path,
             channels: Arc::new(DashMap::new()),
             presence: Arc::new(DashMap::new()),
+            admin_rate_limiter: Arc::new(DashMap::new()),
+            admin_sessions: Arc::new(DashMap::new()),
         }
     }
 

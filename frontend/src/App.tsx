@@ -14,6 +14,7 @@ import { LiveMeetingModal } from './components/LiveMeetingModal';
 import { ExportModal } from './components/ExportModal';
 import { CreateBoardModal } from './components/CreateBoardModal';
 import { IdentityModal } from './components/IdentityModal';
+import { AdminDashboard } from './components/AdminDashboard';
 import { Footer } from './components/Footer';
 import { useDailySocket } from './hooks/useDailySocket';
 import {
@@ -285,6 +286,22 @@ export function App() {
     window.history.pushState({}, '', `/board/${boardId}`);
     setCurrentBoardId(boardId);
   };
+
+  const [isAdminRoute] = useState(() => {
+    return (
+      window.location.pathname.startsWith('/admin') ||
+      new URLSearchParams(window.location.search).get('view') === 'admin'
+    );
+  });
+
+  if (isAdminRoute) {
+    return (
+      <AdminDashboard
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+    );
+  }
 
   if (!currentBoardId) {
     return (

@@ -751,7 +751,7 @@ mod tests {
 
     fn setup_test_state() -> AppState {
         let db = Database::new(":memory:").unwrap();
-        AppState::new(db)
+        AppState::new(db, ":memory:".to_string())
     }
 
     #[tokio::test]

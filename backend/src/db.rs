@@ -1,7 +1,9 @@
 use std::sync::{Arc, Mutex};
 use chrono::Utc;
 use rusqlite::{params, Connection, OptionalExtension, Result};
-use crate::models::{CheckIn, DailyBoard, LiveMeetingState, SaveCheckInRequest};
+use crate::models::{
+    AdminBoardSummary, AdminMetrics, CheckIn, DailyBoard, LiveMeetingState, SaveCheckInRequest,
+};
 
 pub fn now_ts() -> i64 {
     Utc::now().timestamp()
@@ -404,6 +406,67 @@ impl Database {
             ],
         )?;
         Ok(())
+    }
+
+    pub fn get_admin_metrics(&self, db_path: &str) -> Result<AdminMetrics> {
+        let conn = self.get_conn();
+        let total_boards: usize = conn.query_row("SELECT COUNT(*) FROM boards", [], |r| r.get(0))?;
+        let now = now_ts();
+        let cutoff_30d = now - (30 * 24 * 3600);
+        let active_boards_30d: usize = conn.query_row(
+            "SELECT COUNT(*) FROM boards WHERE created_at >= ?1",
+            params![cutoff_30d],
+            |r| r.get(0),
+        )?;
+        let total_checkins: usize = conn.query_row("SELECT COUNT(*) FROM checkins", [], |r| r.get(0))?;
+        let total_blockers: usize = conn.query_row("SELECT COUNT(*) FROM checkins WHERE has_blockers = 1", [], |r| r.get(0))?;
+        let distinct_participants: usize = conn.query_row("SELECT COUNT(DISTINCT user_name) FROM checkins", [], |r| r.get(0))?;
+
+        let db_size_bytes = std::fs::metadata(db_path).map(|m| m.len()).unwrap_or(0);
+
+        Ok(AdminMetrics {
+            total_boards,
+            active_boards_30d,
+            total_checkins,
+            total_blockers,
+            distinct_participants,
+            db_size_bytes,
+        })
+    }
+
+    pub fn list_admin_boards(&self, limit: usize) -> Result<Vec<AdminBoardSummary>> {
+        let conn = self.get_conn();
+        let mut stmt = conn.prepare(
+            "SELECT b.id, b.title, b.meeting_timer_seconds,
+                    (SELECT COUNT(*) FROM checkins c WHERE c.board_id = b.id) as checkin_count,
+                    (SELECT COUNT(*) FROM checkins c WHERE c.board_id = b.id AND c.has_blockers = 1) as blocker_count,
+                    b.created_at
+             FROM boards b
+             ORDER BY b.created_at DESC
+             LIMIT ?1",
+        )?;
+
+        let rows = stmt.query_map(params![limit as i64], |row| {
+            Ok(AdminBoardSummary {
+                id: row.get(0)?,
+                title: row.get(1)?,
+                timer_seconds: row.get(2)?,
+                checkin_count: row.get(3)?,
+                blocker_count: row.get(4)?,
+                created_at: row.get(5)?,
+            })
+        })?;
+
+        let mut boards = Vec::new();
+        for b in rows {
+            boards.push(b?);
+        }
+        Ok(boards)
+    }
+
+    pub fn delete_board(&self, board_id: &str) -> Result<usize> {
+        let conn = self.get_conn();
+        conn.execute("DELETE FROM boards WHERE id = ?1", params![board_id])
     }
 }
 

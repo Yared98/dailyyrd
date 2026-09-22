@@ -186,3 +186,41 @@ pub struct WsMessage {
     #[serde(default)]
     pub timestamp: i64,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdminMetrics {
+    pub total_boards: usize,
+    pub active_boards_30d: usize,
+    pub total_checkins: usize,
+    pub total_blockers: usize,
+    pub distinct_participants: usize,
+    pub db_size_bytes: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdminBoardSummary {
+    pub id: String,
+    pub title: String,
+    pub timer_seconds: i32,
+    pub checkin_count: usize,
+    pub blocker_count: usize,
+    pub created_at: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdminMetricsResponse {
+    pub metrics: AdminMetrics,
+    pub active_boards_memory: usize,
+    pub boards: Vec<AdminBoardSummary>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdminPurgeResponse {
+    pub purged_count: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdminDeleteResponse {
+    pub deleted: bool,
+}
+
