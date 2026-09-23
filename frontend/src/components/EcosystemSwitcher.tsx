@@ -14,7 +14,13 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
 
   const getAppUrl = (app: 'retro' | 'daily' | 'planning' | 'coffee') => {
     // 1. Check for explicit env var
-    const envUrl = (import.meta as any).env?.[`VITE_${app.toUpperCase()}_URL`];
+    const envMap: Record<'retro' | 'daily' | 'planning' | 'coffee', string | undefined> = {
+      retro: import.meta.env.VITE_RETRO_URL,
+      daily: import.meta.env.VITE_DAILY_URL,
+      planning: import.meta.env.VITE_PLANNING_URL,
+      coffee: import.meta.env.VITE_COFFEE_URL,
+    };
+    const envUrl = envMap[app] || (import.meta as any).env?.[`VITE_${app.toUpperCase()}_URL`];
     if (envUrl) return envUrl;
 
     // 2. Localhost development defaults (optional, but convenient)

@@ -3,6 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - VITE_RETRO_URL=${VITE_RETRO_URL:-}
+        - VITE_DAILY_URL=${VITE_DAILY_URL:-}
+        - VITE_PLANNING_URL=${VITE_PLANNING_URL:-}
+        - VITE_COFFEE_URL=${VITE_COFFEE_URL:-}
     container_name: dailyyrd-app
     restart: unless-stopped
     ports:
