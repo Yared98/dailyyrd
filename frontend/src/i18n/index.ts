@@ -104,7 +104,7 @@ const resources = {
         creating: "Criando...",
       },
       home: {
-        badge: "Yrd Agile Toolkit • Cerimônia de Standup",
+        badge: "Ecossistema Ágil • Cerimônia de Standup",
         heroTitle: "Standups Ágeis, Sem Fricção.",
         heroSubtitle: "Assíncronas ou ao Vivo.",
         heroDesc: "Acompanhe o ritmo diário do seu time de engenharia. Destaque bloqueios instantaneamente pela manhã ou conduza reuniões síncronas com nossa roleta de turnos e cronômetro dinâmico.",
@@ -265,7 +265,7 @@ const resources = {
         creating: "Creating...",
       },
       home: {
-        badge: "Yrd Agile Toolkit • Standup Ceremony",
+        badge: "Agile Ecosystem • Standup Ceremony",
         heroTitle: "Agile Standups, Zero Friction.",
         heroSubtitle: "Asynchronous or Live.",
         heroDesc: "Track your engineering team's daily cadence. Spotlight blockers instantly in the morning or facilitate live synchronous meetings with our turn roulette and dynamic timer.",

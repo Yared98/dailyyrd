@@ -13,6 +13,11 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
   const isEn = i18n.language.startsWith('en');
 
   const getAppUrl = (app: 'retro' | 'daily' | 'planning' | 'coffee') => {
+    // 1. Check for explicit env var
+    const envUrl = (import.meta as any).env?.[`VITE_${app.toUpperCase()}_URL`];
+    if (envUrl) return envUrl;
+
+    // 2. Localhost development defaults (optional, but convenient)
     const isDev =
       window.location.port === '5173' ||
       window.location.port === '8080' ||
@@ -25,11 +30,9 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
       if (app === 'planning') return 'http://localhost:3000';
       if (app === 'coffee') return 'http://localhost:8082';
     }
-    if (app === 'retro') return (import.meta as any).env?.VITE_RETRO_URL || 'https://retro.yared.com.br';
-    if (app === 'daily') return (import.meta as any).env?.VITE_DAILY_URL || 'https://daily.yared.com.br';
-    if (app === 'planning') return (import.meta as any).env?.VITE_PLANNING_URL || 'https://planning.yared.com.br';
-    if (app === 'coffee') return (import.meta as any).env?.VITE_COFFEE_URL || 'https://coffee.yared.com.br';
-    return '#';
+
+    // 3. Not configured
+    return undefined;
   };
 
   useEffect(() => {
@@ -79,6 +82,12 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
     },
   ];
 
+  const configuredApps = apps.filter((app) => app.url || app.id === currentApp);
+
+  if (configuredApps.length <= 1) {
+    return null;
+  }
+
   return (
     <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
       <button
@@ -97,10 +106,10 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
           cursor: 'pointer',
           transition: 'all var(--transition-fast)',
         }}
-        title="Yrd Agile Toolkit"
+        title={isEn ? 'Ecosystem' : 'Ecossistema'}
       >
         <Sparkles size={13} style={{ color: 'var(--color-primary)' }} />
-        <span className="ecosystem-switcher-label">Yrd Toolkit</span>
+        <span className="ecosystem-switcher-label">{isEn ? 'Ecosystem' : 'Ecossistema'}</span>
         <ChevronDown size={12} style={{ opacity: 0.65, transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </button>
 
@@ -123,7 +132,7 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
         >
           <div style={{ padding: '0.4rem 0.6rem 0.5rem', borderBottom: '1px solid var(--border-subtle)', marginBottom: '0.35rem' }}>
             <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-primary)' }}>
-              Yrd Agile Toolkit
+              {isEn ? 'Ecosystem' : 'Ecossistema'}
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
               {isEn ? 'Private & AI-integrated agile suite' : 'Suíte ágil privada e integrada com IA'}
@@ -131,7 +140,7 @@ export const EcosystemSwitcher: React.FC<EcosystemSwitcherProps> = ({ currentApp
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-            {apps.map((app) => {
+            {configuredApps.map((app) => {
               const isCurrent = app.id === currentApp;
               const Icon = app.icon;
 
